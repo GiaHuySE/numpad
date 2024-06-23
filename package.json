@@ -1,6 +1,6 @@
 {
   "name": "@huytg/numpad",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "numpad",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
