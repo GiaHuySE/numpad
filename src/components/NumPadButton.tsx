@@ -7,11 +7,11 @@ import type {
   TextStyle,
   ViewStyle,
 } from 'react-native';
-import { Image, Pressable, StyleSheet, Text } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface NumpadButtonProps {
   value: string;
-  onPress: (value: string) => void;
+  onPress: (value: string, type: string) => void;
   pressableProps?: PressableProps;
   textProps?: TextProps;
   style?: ViewStyle;
@@ -20,9 +20,10 @@ interface NumpadButtonProps {
   disable?: boolean;
   decimalKeyHidden?: boolean;
   decimalImageSource?: ImageProps | '.' | ',';
+  deleteImageSource?: ImageProps;
 }
-
-const NumpadButton: React.FC<NumpadButtonProps> = ({
+let decimalImage: ImageProps;
+export const NumpadButton: React.FC<NumpadButtonProps> = ({
   value,
   onPress,
   pressableProps,
@@ -31,14 +32,14 @@ const NumpadButton: React.FC<NumpadButtonProps> = ({
   textStyle,
   iconStyle,
   disable,
-  decimalKeyHidden = true,
+  decimalKeyHidden = false,
   decimalImageSource,
+  deleteImageSource,
 }) => {
   const isDecimalButton = value === '.' || value === ',';
   const isDeleteButton = value === '⌫';
-  const deleteImage = require('./delete.png');
+  const deleteImage = deleteImageSource || require('./delete.png');
 
-  let decimalImage;
   if (decimalImageSource === '.') {
     decimalImage = require('./dot-icon.png');
   } else if (decimalImageSource === ',') {
@@ -46,19 +47,38 @@ const NumpadButton: React.FC<NumpadButtonProps> = ({
   } else if (decimalImageSource && typeof decimalImageSource !== 'string') {
     decimalImage = decimalImageSource;
   }
+
+  if (isDecimalButton && decimalKeyHidden) {
+    return <View style={[styles.button, style]} />;
+  }
+
   return (
     <Pressable
       {...pressableProps}
       disabled={disable}
       style={[styles.button, style]}
-      onPress={() => onPress(value)}
+      onPress={() =>
+        onPress(
+          value,
+          isDeleteButton ? 'delete' : isDecimalButton ? 'decimal' : 'key'
+        )
+      }
     >
       {isDeleteButton ? (
-        <Image source={deleteImage} style={[styles.icon, iconStyle]} />
-      ) : isDecimalButton && decimalKeyHidden ? (
-        <Image source={decimalImage} style={[styles.icon, iconStyle]} />
+        <Image
+          source={deleteImage}
+          style={StyleSheet.flatten([styles.icon, iconStyle])}
+        />
+      ) : isDecimalButton && decimalImage ? (
+        <Image
+          source={decimalImage}
+          style={StyleSheet.flatten([styles.icon, iconStyle])}
+        />
       ) : (
-        <Text style={[styles.buttonText, textStyle]} {...textProps}>
+        <Text
+          style={StyleSheet.flatten([styles.buttonText, textStyle])}
+          {...textProps}
+        >
           {value}
         </Text>
       )}
@@ -84,5 +104,3 @@ const styles = StyleSheet.create({
     height: 16,
   },
 });
-
-export default NumpadButton;

@@ -1,1 +1,1 @@
-export * from './components/NumpadKeyBoard';
+export * from './components/Numpad';

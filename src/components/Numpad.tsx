@@ -5,27 +5,31 @@ import {
   type ImageProps,
   type PressableProps,
   type TextProps,
+  type ViewProps,
 } from 'react-native';
-import NumpadButton from './NumPadButton';
+import { NumpadButton } from './NumPadButton';
 
-interface NumpadProps {
-  onKeyPress: (value: string) => void;
+interface NumpadProps extends ViewProps {
+  onKeyPress: (event: { value: string; type: string }) => void;
   gap?: number;
   numProps?: PressableProps;
   numTextProps?: TextProps;
   decimalImageSource?: ImageProps | '.' | ',';
+  deleteImageSource?: ImageProps;
   disable?: boolean;
   decimalKeyHidden?: boolean;
 }
 
-const Numpad: React.FC<NumpadProps> = ({
+export const Numpad: React.FC<NumpadProps> = ({
   onKeyPress,
-  gap = 10,
+  gap,
   numProps,
   numTextProps,
   decimalImageSource,
+  deleteImageSource,
   disable,
   decimalKeyHidden,
+  ...viewProps
 }) => {
   const numpadValues = [
     ['1', '2', '3'],
@@ -35,7 +39,7 @@ const Numpad: React.FC<NumpadProps> = ({
   ];
 
   return (
-    <View style={[styles.container, { paddingBottom: gap }]}>
+    <View style={[styles.container, { paddingBottom: gap }]} {...viewProps}>
       {numpadValues.map((row, rowIndex) => (
         <View
           key={rowIndex}
@@ -49,10 +53,11 @@ const Numpad: React.FC<NumpadProps> = ({
               disable={disable}
               key={item}
               value={item}
-              onPress={onKeyPress}
+              onPress={(value, type) => onKeyPress({ value, type })}
               pressableProps={numProps}
               textProps={numTextProps}
               decimalImageSource={item === '.' ? decimalImageSource : undefined}
+              deleteImageSource={item === '⌫' ? deleteImageSource : undefined}
               decimalKeyHidden={decimalKeyHidden}
             />
           ))}
@@ -75,5 +80,3 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 });
-
-export default Numpad;
